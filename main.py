@@ -49,24 +49,6 @@ def find_face_in_cube(video_cap, vid, uf, rf, ff, df, lf, bf, text=""):
                 # print(np.array_equal(detected_face, tf))
                 # print(np.array_equal(detected_face, ff))
                 
-                # Check if the detected face is unique
-                if not any(np.array_equal(detected_face, f) for f in [uf, ff, bf, df, lf, rf]):
-                    # Draw a rectangle around the detected face
-                    cv2.rectangle(bgr_image_input, (0, 0), (bgr_image_input.shape[1], bgr_image_input.shape[0]), (0, 255, 0), 3)
-                    
-                    # Add text to indicate a new face is detected
-                    cv2.putText(bgr_image_input, "New Face Detected", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-                    
-                    # Display the detected face colors
-                    for i, color in enumerate(colors_array):
-                        cv2.rectangle(bgr_image_input, (10 + i*30, 50), (30 + i*30, 70), color.tolist(), -1)
-                    
-                    # Save the frame with the new face
-                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                    cv2.imwrite(f"new_face_{timestamp}.jpg", bgr_image_input)
-                    
-                    return detected_face
-                
                 faces = []
                 if (np.array_equal(detected_face, uf) == False and np.array_equal(detected_face, ff) == False and 
                     np.array_equal(detected_face, bf) == False and np.array_equal(detected_face, df) == False and 
