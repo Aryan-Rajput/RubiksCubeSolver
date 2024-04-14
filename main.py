@@ -23,23 +23,80 @@ def face_detection_in_cube(bgr_image_input):
     gray = cv2.adaptiveThreshold(gray, 37, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 19, 0)
     # cv2.imshow('gray',gray)
     
-    # Find contours in the image
-    contours, _ = cv2.findContours(gray, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    mnar = 1000
-    mxar = 10000
-    re_contours = [cnt for cnt in contours if mnar < cv2.contourArea(cnt) < mxar]
-    srt_contours = sorted(re_contours, key=cv2.contourArea, reverse=True)
-    cb_faces = srt_contours[:9]
-    clr_arr = []
-    for cnt in cb_faces:
-        mask = np.zeros(gray.shape, np.uint8)
-        cv2.drawContours(mask, [cnt], 0, 255, -1)
-        mean_color = cv2.mean(bgr_image_input, mask=mask)[:3]
-        clr_arr.append(mean_color)
+   
+    try:
+        _, contours, hierarchy = cv2.findContours(gray, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_NONE)
+    except:
+        contours, hierarchy = cv2.findContours(gray, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_NONE)
     
-    cv2.drawContours(bgr_image_input, cb_faces, -1, (0, 255, 0), 2)
-    
-    return bgr_image_input, clr_arr
+    i = 0
+    contour_id = 0
+    # print(len(contours))
+    count = 0
+    colors_array = []
+    for contour in contours:
+        # get area of contours
+        A1 = cv2.contourArea(contour)
+        contour_id = contour_id + 1
+
+        if A1 < 3000 and A1 > 1000:
+            dper = cv2.arcLength(contour, True)
+
+            eps = 0.01 * dper
+            approx = cv2.approxPolyDP(contour, eps, True)
+            # this is a just in case scenario
+            hull = cv2.convexHull(contour)
+            if cv2.norm(((dper / 4) * (dper / 4)) - A1) < 150:
+                # if cv2.ma
+                count = count + 1
+
+                # get co ordinates of the contours in the cube
+                x, y, w, h = cv2.boundingRect(contour)
+                # cv2.rectangle(bgr_image_input, (x, y), (x + w, y + h), (0, 255, 255), 2)
+                # cv2.imshow('cutted contour', bgr_image_input[y:y + h, x:x + w])
+                val = (50 * y) + (10 * x)
+
+                # get mean color of the contour
+                color_array = np.array(cv2.mean(bgr_image_input[y:y + h, x:x + w])).astype(int)
+
+                blue = color_array[0] / 255
+                green = color_array[1] / 255
+                red = color_array[2] / 255
+
+                cmax = max(red, blue, green)
+                cmin = min(red, blue, green)
+                diff = cmax - cmin
+                hue = -1
+                starn = -1
+
+                if (cmax == cmin):
+                    hue = 0
+
+                elif (cmax == red):
+                    hue = (60 * ((green - blue) / diff) + 360) % 360
+
+                elif (cmax == green):
+                    hue = (60 * ((blue - red) / diff) + 120) % 360
+
+                elif (cmax == blue):
+                    hue = (60 * ((red - green) / diff) + 240) % 360
+
+                if (cmax == 0):
+                    starn = 0
+                else:
+                    starn = (diff / cmax) * 100
+
+                valux = cmax * 100
+
+                # print(hue,starn,valux)
+                # exit()
+                # print(color_array)
+                # print(hue,starn,valux),valux)
+                # exit()
+                # print(color_array)r_array)
+                # print(hue,starne,starn
+
+
     
 
 def find_face_in_cube(video_cap, vid, uf, rf, ff, df, lf, bf, text=""):
@@ -251,7 +308,7 @@ def main():
             print(backfce)
             # time.sleep(2)
             print(mb)
-            
+
         
         while True:
             # Capture frame-by-frame
