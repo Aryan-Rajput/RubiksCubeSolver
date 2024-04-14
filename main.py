@@ -22,7 +22,25 @@ def face_detection_in_cube(bgr_image_input):
     # cv2.imshow('gray',gray)
     gray = cv2.adaptiveThreshold(gray, 37, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 19, 0)
     # cv2.imshow('gray',gray)
-
+    
+    # Find contours in the image
+    contours, _ = cv2.findContours(gray, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    mnar = 1000
+    mxar = 10000
+    re_contours = [cnt for cnt in contours if mnar < cv2.contourArea(cnt) < mxar]
+    srt_contours = sorted(re_contours, key=cv2.contourArea, reverse=True)
+    cb_faces = srt_contours[:9]
+    clr_arr = []
+    for cnt in cb_faces:
+        mask = np.zeros(gray.shape, np.uint8)
+        cv2.drawContours(mask, [cnt], 0, 255, -1)
+        mean_color = cv2.mean(bgr_image_input, mask=mask)[:3]
+        clr_arr.append(mean_color)
+    
+    cv2.drawContours(bgr_image_input, cb_faces, -1, (0, 255, 0), 2)
+    
+    return bgr_image_input, clr_arr
+    
 
 def find_face_in_cube(video_cap, vid, uf, rf, ff, df, lf, bf, text=""):
     faces = []
@@ -33,7 +51,7 @@ def find_face_in_cube(video_cap, vid, uf, rf, ff, df, lf, bf, text=""):
             print("Cannot read video source")
             sys.exit()
         # assinging values to face and blob colors based on the face_detection_in_cube method
-        face, colors_array = face_detection_in_cube(bgr_image_input)
+        face, clr_arr = face_detection_in_cube(bgr_image_input)
         bgr_image_input = cv2.putText(bgr_image_input, text, (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 3)
         # print(len(face))
         if len(face) == 9:
