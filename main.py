@@ -8,9 +8,9 @@ from scipy import stats
 from datetime import datetime
 
 
-def face_concatenation(up_face, right_face, front_face, down_face, left_face, back_face):
+def face_concatenation(upfce, rightfce, frtfce, downfce, leftfce, backface):
     cube_string = ''
-    faces = [up_face, right_face, front_face, down_face, left_face, back_face]
+    faces = [upfce, rightfce, frtfce, downfce, leftfce, backface]
     for face in faces:
         for row in face:
             for color in row:
@@ -160,13 +160,69 @@ def face_detection_in_cube(bgr_image_input):
         # break
 
 
+def rotate_clock_wise(face):
+    temp = np.copy(face)
+    temp[0, 0], temp[0,1], temp[0,2], temp[0,3], temp[0,4], temp[0,5],temp[0,6],temp[0,7], temp[0,8] = face[0, 6],face[0, 3],face[0, 0],face[0, 7],face[0, 4],face[0, 1],face[0, 8],face[0, 5],face[0, 2]
+    return temp
+
+def rotate_counter_clock_wise(face):
+    temp = np.copy(face)
+    temp[0, 8],temp[0, 7],temp[0, 6],temp[0, 5],temp[0, 4],temp[0, 3],temp[0, 2],temp[0, 1], temp[0, 0] = face[0, 6],face[0, 3],face[0, 0],face[0, 7],face[0, 4],face[0, 1],face[0, 8],face[0, 5],face[0, 2]
+    return temp
+
+def right_face_clock_wise(video,videoWriter,up_face,right_face,front_face,down_face,left_face,back_face):
+            
+
+def right_counter_clock_wise(video, videoWriter, up_face,right_face,front_face,down_face,left_face,back_face):
+            
+
+def left_face_clock_wise(video,videoWriter,up_face,right_face,front_face,down_face,left_face,back_face):
+            
+
+def left_face_counter_clock_wise(video,videoWriter,up_face,right_face,front_face,down_face,left_face,back_face):
+            
+
+def front_face_clock_wise(video,videoWriter,up_face,right_face,front_face,down_face,left_face,back_face):
+            
+
+def front_face_counter_clock_wise(video,videoWriter,up_face,right_face,front_face,down_face,left_face,back_face):
+            
+
+def back_face_clock_wise(video,videoWriter,up_face,right_face,front_face,down_face,left_face,back_face):
+            
+
+def back_face_counter_clock_wise(video,videoWriter,up_face,right_face,front_face,down_face,left_face,back_face):
+            
+
+def up_face_clock_wise(video,videoWriter,up_face,right_face,front_face,down_face,left_face,back_face):
+            
+
+def up_face_counter_clock_wise(video,videoWriter,up_face,right_face,front_face,down_face,left_face,back_face):
+            
+
+def down_face_clock_wise(video,videoWriter,up_face,right_face,front_face,down_face,left_face,back_face):
+            
+
+def down_face_counter_clock_wise(video,videoWriter,up_face,right_face,front_face,down_face,left_face,back_face):
+            
+
+def turn_to_right(video,videoWriter,up_face,right_face,front_face,down_face,left_face,back_face):
+            
+
+def turn_to_front(video,videoWriter,up_face,right_face,front_face,down_face,left_face,back_face):
+            
+
+
+
+
+
 def find_face_in_cube(video_cap, vid, uf, rf, ff, df, lf, bf, text=""):
     faces = []
     while True:
         tr, bgr_image_input = video_cap.read()
 
         if not tr:
-            print("Cannot read video source")
+            print("Cannot read video_cap source")
             sys.exit()
         # assinging values to face and blob colors based on the face_detection_in_cube method
         face, clr_arr = face_detection_in_cube(bgr_image_input)
@@ -224,7 +280,7 @@ def main():
         fps = 20
         vid = cv2.VideoWriter(fname, fourcc, fps, (w1, h1))
     except Exception as e:
-        print(f"Failed to open video writer: {e}")
+        print(f"Failed to open video_cap writer: {e}")
         sys.exit(1)
     
     while True:
@@ -264,8 +320,8 @@ def main():
                         break
             if broke == 1:
                 break
-            mu = up_face[0, 4]
-            print(up_face)
+            mu = upfce[0, 4]
+            print(upfce)
             print(mu)
             
             # -> Down face change
@@ -377,7 +433,7 @@ def main():
                            mf, mf, mf, mf, md, md, md, md, md, md, md, md, md, ml, ml, ml, ml, ml, ml, ml, ml, ml, mb,
                            mb, mb, mb, mb, mb, mb, mb, mb]
             if (face_concatenation(upfce, rightfce, frtfce, downfce, leftfce, backfce) == cube_solved).all():
-                is_ok, bgr_image_input = video.read()
+                is_ok, bgr_image_input = video_cap.read()
                 bgr_image_input = cv2.putText(bgr_image_input, "CUBE ALREADY SOLVED", (100, 50),
                                               cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 3)
                 vid.write(bgr_image_input)
@@ -387,7 +443,158 @@ def main():
                     break
                 time.sleep(5)
                 break
-        
+            # assigning respective values to the faces
+            ''' F -------> Front face
+                R -------> Right face
+                B -------> Back face
+                L -------> Left face
+                U -------> Up face
+                D -------> Down face'''
+            final_string = ''
+            for val in range(len(solution)):
+                if solution[val] == mf:
+                    final_string = final_string + 'F'
+                elif solution[val] == mr:
+                    final_string = final_string + 'R'
+                elif solution[val] == mb:
+                    final_string = final_string + 'B'
+                elif solution[val] == ml:
+                    final_string = final_string + 'L'
+                elif solution[val] == mu:
+                    final_string = final_string + 'U'
+                elif solution[val] == md:
+                    final_string = final_string + 'D'
+
+            print(final_string)
+            try:
+                solved = kociemba.solve(final_string)
+                print(solved)
+                break
+            except :
+                upfce = [0, 0]
+                frtfce = [0, 0]
+                leftfce = [0, 0]
+                rightfce = [0, 0]
+                downfce = [0, 0]
+                backfce = [0, 0]
+
+        if broke == 1:
+            break
+        # spliting the steps and calling respective functions so that arrows can be displayed accordingly
+        # below methods are available in the rotate.py file
+        # in steps letter like R F B D L U indicate right, front, back , down faces to be rotated clockwise
+        # if there is 2 after the letter they should be rotate twice and if there is " ' " like R' then the respective
+        # face should be rotated anti clock wise
+        steps = solved.split()
+        for step in steps:
+            if step == "R":
+                [upfce, rightfce, frtfce, downfce, leftfce, backfce] = right_face_clock_wise(
+                    video_cap, vid, upfce, rightfce, frtfce, downfce, leftfce, backfce
+                )
+            elif step == "R'":
+                [upfce, rightfce, frtfce, downfce, leftfce, backfce] = right_counter_clock_wise(
+                    video_cap, vid, upfce, rightfce, frtfce, downfce, leftfce, backfce
+                )
+            elif step == "R2":
+                [upfce, rightfce, frtfce, downfce, leftfce, backfce] = right_face_clock_wise(
+                    video_cap, vid, upfce, rightfce, frtfce, downfce, leftfce, backfce
+                )
+                [upfce, rightfce, frtfce, downfce, leftfce, backfce] = right_face_clock_wise(
+                    video_cap, vid, upfce, rightfce, frtfce, downfce, leftfce, backfce
+                )
+            elif step == "L":
+                [upfce, rightfce, frtfce, downfce, leftfce, backfce] = left_face_clock_wise(
+                    video_cap, vid, upfce, rightfce, frtfce, downfce, leftfce, backfce
+                )
+            elif step == "L'":
+                [upfce, rightfce, frtfce, downfce, leftfce, backfce] = left_face_counter_clock_wise(
+                    video_cap, vid, upfce, rightfce, frtfce, downfce, leftfce, backfce
+                )
+            elif step == "L2":
+                [upfce, rightfce, frtfce, downfce, leftfce, backfce] = left_face_clock_wise(
+                    video_cap, vid, upfce, rightfce, frtfce, downfce, leftfce, backfce
+                )
+                [upfce, rightfce, frtfce, downfce, leftfce, backfce] = left_face_clock_wise(
+                    video_cap, vid, upfce, rightfce, frtfce, downfce, leftfce, backfce
+                )
+            elif step == "F":
+                [upfce, rightfce, frtfce, downfce, leftfce, backfce] = front_face_clock_wise(
+                    video_cap, vid, upfce, rightfce, frtfce, downfce, leftfce, backfce
+                )
+            elif step == "F'":
+                [upfce, rightfce, frtfce, downfce, leftfce, backfce] = front_face_counter_clock_wise(
+                    video_cap, vid, upfce, rightfce, frtfce, downfce, leftfce, backfce
+                )
+            elif step == "F2":
+                [upfce, rightfce, frtfce, downfce, leftfce, backfce] = front_face_clock_wise(
+                    video_cap, vid, upfce, rightfce, frtfce, downfce, leftfce, backfce
+                )
+                [upfce, rightfce, frtfce, downfce, leftfce, backfce] = front_face_clock_wise(
+                    video_cap, vid, upfce, rightfce, frtfce, downfce, leftfce, backfce
+                )
+            elif step == "B":
+                [upfce, rightfce, frtfce, downfce, leftfce, backfce] = turn_to_right(
+                    video_cap, vid, upfce, rightfce, frtfce, downfce, leftfce, backfce
+                )
+                [upfce, rightfce, frtfce, downfce, leftfce, backfce] = right_face_clock_wise(
+                    video_cap, vid, upfce, rightfce, frtfce, downfce, leftfce, backfce
+                )
+                [upfce, rightfce, frtfce, downfce, leftfce, backfce] = turn_to_front(
+                    video_cap, vid, upfce, rightfce, frtfce, downfce, leftfce, backfce
+                )
+            elif step == "B'":
+                [upfce, rightfce, frtfce, downfce, leftfce, backfce] = turn_to_right(
+                    video_cap, vid, upfce, rightfce, frtfce, downfce, leftfce, backfce
+                )
+                [upfce, rightfce, frtfce, downfce, leftfce, backfce] = right_counter_clock_wise(
+                    video_cap, vid, upfce, rightfce, frtfce, downfce, leftfce, backfce
+                )
+                [upfce, rightfce, frtfce, downfce, leftfce, backfce] = turn_to_front(
+                    video_cap, vid, upfce, rightfce, frtfce, downfce, leftfce, backfce
+                )
+            elif step == "B2":
+                [upfce, rightfce, frtfce, downfce, leftfce, backfce] = turn_to_right(
+                    video_cap, vid, upfce, rightfce, frtfce, downfce, leftfce, backfce
+                )
+                [upfce, rightfce, frtfce, downfce, leftfce, backfce] = right_face_clock_wise(
+                    video_cap, vid, upfce, rightfce, frtfce, downfce, leftfce, backfce
+                )
+                [upfce, rightfce, frtfce, downfce, leftfce, backfce] = right_face_clock_wise(
+                    video_cap, vid, upfce, rightfce, frtfce, downfce, leftfce, backfce
+                )
+                [upfce, rightfce, frtfce, downfce, leftfce, backfce] = turn_to_front(
+                    video_cap, vid, upfce, rightfce, frtfce, downfce, leftfce, backfce
+                )
+            elif step == "U":
+                [upfce, rightfce, frtfce, downfce, leftfce, backfce] = up_face_clock_wise(
+                    video_cap, vid, upfce, rightfce, frtfce, downfce, leftfce, backfce
+                )
+            elif step == "U'":
+                [upfce, rightfce, frtfce, downfce, leftfce, backfce] = up_face_counter_clock_wise(
+                    video_cap, vid, upfce, rightfce, frtfce, downfce, leftfce, backfce
+                )
+            elif step == "U2":
+                [upfce, rightfce, frtfce, downfce, leftfce, backfce] = up_face_clock_wise(
+                    video_cap, vid, upfce, rightfce, frtfce, downfce, leftfce, backfce
+                )
+                [upfce, rightfce, frtfce, downfce, leftfce, backfce] = up_face_clock_wise(
+                    video_cap, vid, upfce, rightfce, frtfce, downfce, leftfce, backfce
+                )
+            elif step == "D":
+                [upfce, rightfce, frtfce, downfce, leftfce, backfce] = down_face_clock_wise(
+                    video_cap, vid, upfce, rightfce, frtfce, downfce, leftfce, backfce
+                )
+            elif step == "D'":
+                [upfce, rightfce, frtfce, downfce, leftfce, backfce] = down_face_counter_clock_wise(
+                    video_cap, vid, upfce, rightfce, frtfce, downfce, leftfce, backfce
+                )
+            elif step == "D2":
+                [upfce, rightfce, frtfce, downfce, leftfce, backfce] = down_face_clock_wise(
+                    video_cap, vid, upfce, rightfce, frtfce, downfce, leftfce, backfce
+                )
+                [upfce, rightfce, frtfce, downfce, leftfce, backfce] = down_face_clock_wise(
+                    video_cap, vid, upfce, rightfce, frtfce, downfce, leftfce, backfce
+                )
         while True:
             # Capture frame-by-frame
             ret, frame = video_cap.read()
