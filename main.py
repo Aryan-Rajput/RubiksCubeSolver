@@ -869,10 +869,67 @@ def down_face_counter_clock_wise(video_cap,vid,up_face,right_face,front_face,dow
 
 
 def turn_to_right(video_cap,vid,up_face,right_face,front_face,down_face,left_face,back_face):
+    
             
 
 def turn_to_front(video_cap,vid,up_face,right_face,front_face,down_face,left_face,back_face):
-            
+    print("Next Move: Show Front Face")
+    temp = np.copy(front_face)
+    front_face = np.copy(left_face)
+    left_face = np.copy(back_face)
+    back_face = np.copy(right_face)
+    right_face = np.copy(temp)
+    up_face = rotate_counter_clock_wise(up_face)
+    down_face = rotate_clock_wise(down_face)
+    #front_face = temp
+    
+    print(front_face)
+    faces = []
+    while True:
+        is_ok, bgr_image_input = video_cap.read()
+
+        if not is_ok:
+            print("Cannot read video source")
+            sys.exit()
+
+        face, colors_array = face_detection_in_cube(bgr_image_input)
+
+        if len(face) == 9:
+            faces.append(face)
+            if len(faces) == 10:
+                face_array = np.array(faces)
+                detected_face = stats.mode(face_array)[0]
+                front_face = np.asarray(front_face)
+                detected_face = np.asarray(detected_face)
+                faces = []
+                
+                if np.array_equal(detected_face, front_face):
+                    print("Front face detected")
+                    return front_face
+                else:
+                    centroid = np.mean(colors_array, axis=0)
+                    center_x = int(centroid[5] + centroid[7] // 2)
+                    center_y = int(centroid[6] + centroid[8] // 2)
+                    
+                    
+                    arrow_length = 50
+                    for angle in [0, 120, 240]:
+                        end_x = int(center_x + arrow_length * np.cos(np.radians(angle)))
+                        end_y = int(center_y + arrow_length * np.sin(np.radians(angle)))
+                            
+                        # Draw black outline arrow
+                        cv2.arrowedLine(bgr_image_input, (center_x, center_y), (end_x, end_y), (0, 0, 0), 7, tipLength=0.2)
+                        # Draw red inner arrow
+                        cv2.arrowedLine(bgr_image_input, (center_x, center_y), (end_x, end_y), (0, 0, 255), 4, tipLength=0.2)
+
+        vid.write(bgr_image_input)
+        cv2.imshow("Output Image", bgr_image_input)
+        key_pressed = cv2.waitKey(1) & 0xFF
+        if key_pressed == 27 or key_pressed == ord('q'):
+            break
+
+    return None
+        
 
 
 
