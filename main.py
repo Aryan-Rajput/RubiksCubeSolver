@@ -308,15 +308,22 @@ def right_counter_clock_wise(video_cap, vid, up_face,right_face,front_face,down_
 def left_face_clock_wise(video_cap,vid,up_face,right_face,front_face,down_face,left_face,back_face):
     print("Next Move: L Clockwise")
     temp = np.copy(front_face)
+    # Move the left column of the up face to the left column of the front face
     front_face[0, 0] = up_face[0, 0]
     front_face[0, 3] = up_face[0, 3]
     front_face[0, 6] = up_face[0, 6]
+
+    # Move the right column of the back face to the left column of the up face (in reverse order)
     up_face[0, 0] = back_face[0, 8]
     up_face[0, 3] = back_face[0, 5]
     up_face[0, 6] = back_face[0, 2]
+
+    # Move the left column of the down face to the right column of the back face (in reverse order)
     back_face[0, 2] = down_face[0, 6]
     back_face[0, 5] = down_face[0, 3]
     back_face[0, 8] = down_face[0, 0]
+
+    # Move the left column of the original front face (stored in temp) to the left column of the down face
     down_face[0, 0] = temp[0, 0]
     down_face[0, 3] = temp[0, 3]
     down_face[0, 6] = temp[0, 6]
@@ -374,7 +381,81 @@ def left_face_clock_wise(video_cap,vid,up_face,right_face,front_face,down_face,l
     
 
 def left_face_counter_clock_wise(video_cap,vid,up_face,right_face,front_face,down_face,left_face,back_face):
-            
+
+    print("Next Move: L CounterClockwise")
+    temp = np.copy(front_face)
+    # Move the left column of the front face to the up face
+    front_face[0, 0] = down_face[0, 0]
+    front_face[0, 3] = down_face[0, 3]
+    front_face[0, 6] = down_face[0, 6]
+
+    # Move the left column of the down face to the back face
+    down_face[0, 0] = back_face[0, 8]
+    down_face[0, 3] = back_face[0, 5]
+    down_face[0, 6] = back_face[0, 2]
+
+    # Move the right column of the back face to the up face
+    back_face[0, 2] = up_face[0, 6]
+    back_face[0, 5] = up_face[0, 3]
+    back_face[0, 8] = up_face[0, 0]
+
+    # Move the left column of the temporary (original front face) to the up face
+    up_face[0, 0] = temp[0, 0]
+    up_face[0, 3] = temp[0, 3]
+    up_face[0, 6] = temp[0, 6]
+    left_face = rotate_counter_clock_wise(left_face)
+    #front_face = temp
+
+    print(front_face)
+    faces = []
+    while True:
+        is_ok, bgr_image_input = video_cap.read()
+
+        if not is_ok:
+            print("Cannot read video source")
+            sys.exit()
+
+        face, colors_array = face_detection_in_cube(bgr_image_input)
+        # print(len(face))
+        if len(face) == 9:
+            faces.append(face)
+            if len(faces) == 10:
+                face_array = np.array(faces)
+                # print('INNNNN')
+                # face_array = np.transpose(face_array)
+                detected_face = stats.mode(face_array)[0]
+                up_face = np.asarray(up_face)
+                front_face = np.asarray(front_face)
+                detected_face = np.asarray(detected_face)
+                faces = []
+
+                # if detected face and actual face after the rotation is same then return the updated faces
+                if np.array_equal(detected_face, front_face) == True:
+                    print("MOVE MADE")
+                    return up_face,right_face,front_face,down_face,left_face,back_face
+
+                # else display the arrow by calculation the centroid using the coordinates
+                # that are available in color_array
+                elif np.array_equal(detected_face,temp) == True:
+                    # Calculate the centroid coordinates for the start and end points of the arrow
+                    centroid1 = colors_array[6]
+                    centroid2 = colors_array[0]
+
+                    # Calculate the exact points for the start and end of the arrow
+                    point1 = (centroid1[5]+(centroid1[7]//2), centroid1[6]+(centroid1[7]//2))
+                    point2 = (centroid2[5]+(centroid2[8]//2), centroid2[6]+(centroid2[8]//2))
+
+                    # Draw a thick black arrow as the outline
+                    cv2.arrowedLine(bgr_image_input, point1, point2, (0, 0, 0), 7, tipLength = 0.2)
+
+                    # Draw a thinner red arrow on top of the black outline
+                    cv2.arrowedLine(bgr_image_input, point1, point2, (0, 0, 255), 4, tipLength=0.2)
+        vid.write(bgr_image_input)
+        cv2.imshow("Output Image", bgr_image_input)
+        key_pressed = cv2.waitKey(1) & 0xFF
+        if key_pressed == 27 or key_pressed == ord('q'):
+            break
+
 
 def front_face_clock_wise(video_cap,vid,up_face,right_face,front_face,down_face,left_face,back_face):
             
@@ -385,19 +466,86 @@ def front_face_counter_clock_wise(video_cap,vid,up_face,right_face,front_face,do
 def back_face_clock_wise(video_cap,vid,up_face,right_face,front_face,down_face,left_face,back_face):
     print("Next Move: B Clockwise")
     temp = np.copy(up_face)
+    
+    # Move the up column of the up face to the right face
     up_face[0, 0] = right_face[0, 2]
     up_face[0, 1] = right_face[0, 5]
     up_face[0, 2] = right_face[0, 8]
+    
+    
+    # Move the middle column of the right face to the down face
     right_face[0, 8] = down_face[0, 6]
     right_face[0, 5] = down_face[0, 7]
     right_face[0, 2] = down_face[0, 8]
+    
+    # move the bottom row of the down face to the left face
     down_face[0, 6] = left_face[0, 0]
     down_face[0, 7] = left_face[0, 3]
     down_face[0, 8] = left_face[0, 6]
+    
+    # Move the left column of the temporary (original front face) to the up face
     left_face[0, 0] = temp[0, 2]
     left_face[0, 3] = temp[0, 1]
     left_face[0, 6] = temp[0, 0]
     back_face = rotate_clock_wise(back_face)
+    #front_face = temp
+
+    print(front_face)
+    faces = []
+    while True:
+        is_ok, bgr_image_input = video_cap.read()
+
+        if not is_ok:
+            print("Cannot read video source")
+            sys.exit()
+
+        face, colors_array = face_detection_in_cube(bgr_image_input)
+        # print(len(face))
+        if len(face) == 9:
+            faces.append(face)
+            if len(faces) == 10:
+                face_array = np.array(faces)
+                # print('INNNNN')
+                # face_array = np.transpose(face_array)
+                detected_face = stats.mode(face_array)[0]
+                up_face = np.asarray(up_face)
+                front_face = np.asarray(front_face)
+                detected_face = np.asarray(detected_face)
+                faces = []
+                if np.array_equal(detected_face, front_face) == True:
+                    print("MOVE MADE")
+                    return up_face,right_face,front_face,down_face,left_face,back_face
+                
+        vid.write(bgr_image_input)
+        cv2.imshow("Output Image", bgr_image_input)
+        key_pressed = cv2.waitKey(1) & 0xFF
+        if key_pressed == 27 or key_pressed == ord('q'):
+            break
+
+
+def back_face_counter_clock_wise(video_cap,vid,up_face,right_face,front_face,down_face,left_face,back_face):
+    print("Next Move: B CounterClockwise")
+    temp = np.copy(up_face)
+    # Move the left face to the up face
+    up_face[0, 2] = left_face[0, 0]
+    up_face[0, 1] = left_face[0, 3]
+    up_face[0, 0] = left_face[0, 6]
+
+    # Move the down face to the left face
+    left_face[0, 0] = down_face[0, 6]
+    left_face[0, 3] = down_face[0, 7]
+    left_face[0, 6] = down_face[0, 8]
+
+    # Move the right face to the down face
+    down_face[0, 6] = right_face[0, 8]
+    down_face[0, 7] = right_face[0, 5]
+    down_face[0, 8] = right_face[0, 2]
+
+    # Move the temporary (original up face) to the right face
+    right_face[0, 2] = temp[0, 0]
+    right_face[0, 5] = temp[0, 1]
+    right_face[0, 8] = temp[0, 2]
+    back_face = rotate_counter_clock_wise(back_face)
     #front_face = temp
 
     print(front_face)
@@ -432,20 +580,293 @@ def back_face_clock_wise(video_cap,vid,up_face,right_face,front_face,down_face,l
             break
 
 
-def back_face_counter_clock_wise(video_cap,vid,up_face,right_face,front_face,down_face,left_face,back_face):
-            
-
 def up_face_clock_wise(video_cap,vid,up_face,right_face,front_face,down_face,left_face,back_face):
+    print("Next Move: U Clockwise")
+    temp = np.copy(front_face)
+    # Move the top row of the right face to the front face
+    front_face[0, 0] = right_face[0, 0]
+    front_face[0, 1] = right_face[0, 1]
+    front_face[0, 2] = right_face[0, 2]
+
+    # Move the top row of the back face to the right face
+    right_face[0, 0] = back_face[0, 0]
+    right_face[0, 1] = back_face[0, 1]
+    right_face[0, 2] = back_face[0, 2]
+
+    # Move the top row of the left face to the back face
+    back_face[0, 0] = left_face[0, 0]
+    back_face[0, 1] = left_face[0, 1]
+    back_face[0, 2] = left_face[0, 2]
+
+    # Move the top row of the temporary (original front face) to the left face
+    left_face[0, 0] = temp[0, 0]
+    left_face[0, 1] = temp[0, 1]
+    left_face[0, 2] = temp[0, 2]
+    up_face = rotate_clock_wise(up_face)
+    #front_face = temp
+
+    print(front_face)
+    faces = []
+    while True:
+        is_ok, bgr_image_input = video_cap.read()
+
+        if not is_ok:
+            print("Cannot read video source")
+            sys.exit()
+
+        face, colors_array = face_detection_in_cube(bgr_image_input)
+        # print(len(face))
+        if len(face) == 9:
+            faces.append(face)
+            if len(faces) == 10:
+                face_array = np.array(faces)
+                # print('INNNNN')
+                # face_array = np.transpose(face_array)
+                detected_face = stats.mode(face_array)[0]
+                up_face = np.asarray(up_face)
+                front_face = np.asarray(front_face)
+                detected_face = np.asarray(detected_face)
+                faces = []
+                if np.array_equal(detected_face, front_face) == True:
+                    print("MOVE MADE")
+                    return up_face,right_face,front_face,down_face,left_face,back_face
+                elif np.array_equal(detected_face,temp) == True:
+                    # Get the centroids of two specific colors from the colors_array
+                    centroid1 = colors_array[2]
+                    centroid2 = colors_array[0]
+
+                    # Calculate the start and end points for the arrow
+                    # The arrow starts from the center of centroid1 and ends at the center of centroid2
+                    point1 = (centroid1[5]+(centroid1[7]//2), centroid1[6]+(centroid1[7]//2))
+                    point2 = (centroid2[5]+(centroid2[8]//2), centroid2[6]+(centroid2[8]//2))
+
+                    # Draw a thick black arrow on the input image
+                    cv2.arrowedLine(bgr_image_input, point1, point2, (0, 0, 0), 7, tipLength = 0.2)
+
+                    # Draw a thinner red arrow on top of the black arrow for better visibility
+                    cv2.arrowedLine(bgr_image_input, point1, point2, (0, 0, 255), 4, tipLength=0.2)
+        vid.write(bgr_image_input)
+        cv2.imshow("Output Image", bgr_image_input)
+        key_pressed = cv2.waitKey(1) & 0xFF
+        if key_pressed == 27 or key_pressed == ord('q'):
+            break
             
 
 def up_face_counter_clock_wise(video_cap,vid,up_face,right_face,front_face,down_face,left_face,back_face):
+    print("Next Move: U CounterClockwise")
+    temp = np.copy(front_face)
+    # Move the top row of the left face to the front face
+    front_face[0, 0] = left_face[0, 0]
+    front_face[0, 1] = left_face[0, 1]
+    front_face[0, 2] = left_face[0, 2]
+
+    # Move the top row of the back face to the left face
+    left_face[0, 0] = back_face[0, 0]
+    left_face[0, 1] = back_face[0, 1]
+    left_face[0, 2] = back_face[0, 2]
+
+    # Move the top row of the right face to the back face
+    back_face[0, 0] = right_face[0, 0]
+    back_face[0, 1] = right_face[0, 1]
+    back_face[0, 2] = right_face[0, 2]
+
+    # Move the top row of the temporary (original front face) to the right face
+    right_face[0, 0] = temp[0, 0]
+    right_face[0, 1] = temp[0, 1]
+    right_face[0, 2] = temp[0, 2]
+    up_face = rotate_counter_clock_wise(up_face)
+    #front_face = temp
+
+    print(front_face)
+    faces = []
+    while True:
+        is_ok, bgr_image_input = video_cap.read()
+
+        if not is_ok:
+            print("Cannot read video source")
+            sys.exit()
+
+        face, colors_array = face_detection_in_cube(bgr_image_input)
+        # print(len(face))
+        if len(face) == 9:
+            faces.append(face)
+            if len(faces) == 10:
+                face_array = np.array(faces)
+                # print('INNNNN')
+                # face_array = np.transpose(face_array)
+                detected_face = stats.mode(face_array)[0]
+                up_face = np.asarray(up_face)
+                front_face = np.asarray(front_face)
+                detected_face = np.asarray(detected_face)
+                faces = []
+                if np.array_equal(detected_face, front_face) == True:
+                    print("MOVE MADE")
+                    return up_face,right_face,front_face,down_face,left_face,back_face
+                elif np.array_equal(detected_face,temp) == True:
+                    # Get the centroids of the first and third color arrays
+                    centroid1 = colors_array[0]
+                    centroid2 = colors_array[2]
+
+                    # Calculate the start and end points for the arrow
+                    # The arrow starts from the center of the first centroid
+                    point1 = (centroid1[5]+(centroid1[7]//2), centroid1[6]+(centroid1[7]//2))
+                    # The arrow ends at the center of the third centroid
+                    point2 = (centroid2[5]+(centroid2[8]//2), centroid2[6]+(centroid2[8]//2))
+
+                    # Draw a thick black arrow on the image
+                    cv2.arrowedLine(bgr_image_input, point1, point2, (0, 0, 0), 7, tipLength = 0.2)
+                    # Draw a thinner red arrow on top of the black arrow
+                    cv2.arrowedLine(bgr_image_input, point1, point2, (0, 0, 255), 4, tipLength=0.2)
+        vid.write(bgr_image_input)
+        cv2.imshow("Output Image", bgr_image_input)
+        key_pressed = cv2.waitKey(1) & 0xFF
+        if key_pressed == 27 or key_pressed == ord('q'):
+            break
             
 
 def down_face_clock_wise(video_cap,vid,up_face,right_face,front_face,down_face,left_face,back_face):
+    print("Next Move: D Clockwise")
+    temp = np.copy(front_face)
+    # Move the bottom row of the front face to the left face
+    front_face[0, 6] = left_face[0, 6]
+    front_face[0, 7] = left_face[0, 7]
+    front_face[0, 8] = left_face[0, 8]
+
+    # Move the bottom row of the left face to the back face
+    left_face[0, 6] = back_face[0, 6]
+    left_face[0, 7] = back_face[0, 7]
+    left_face[0, 8] = back_face[0, 8]
+
+    # Move the bottom row of the back face to the right face
+    back_face[0, 6] = right_face[0, 6]
+    back_face[0, 7] = right_face[0, 7]
+    back_face[0, 8] = right_face[0, 8]
+
+    # Move the bottom row of the right face to the front face (using the temporary variable)
+    right_face[0, 6] = temp[0, 6]
+    right_face[0, 7] = temp[0, 7]
+    right_face[0, 8] = temp[0, 8]
+
+    # These moves collectively rotate the bottom layer of the cube clockwise
+    down_face = rotate_clock_wise(down_face)
+    #front_face = temp
+
+    print(front_face)
+    faces = []
+    while True:
+        is_ok, bgr_image_input = video_cap.read()
+
+        if not is_ok:
+            print("Cannot read video source")
+            sys.exit()
+
+        face, colors_array = face_detection_in_cube(bgr_image_input)
+        # print(len(face))
+        if len(face) == 9:
+            faces.append(face)
+            if len(faces) == 10:
+                face_array = np.array(faces)
+                # print('INNNNN')
+                # face_array = np.transpose(face_array)
+                detected_face = stats.mode(face_array)[0]
+                up_face = np.asarray(up_face)
+                front_face = np.asarray(front_face)
+                detected_face = np.asarray(detected_face)
+                faces = []
+                if np.array_equal(detected_face, front_face) == True:
+                    print("MOVE MADE")
+                    return up_face,right_face,front_face,down_face,left_face,back_face
+                elif np.array_equal(detected_face,temp) == True:
+                    # Calculate the center points of two specific color squares
+                    centroid1 = colors_array[6]
+                    centroid2 = colors_array[8]
+
+                    # Calculate the coordinates for the start and end points of the arrow
+                    point1 = (centroid1[5]+(centroid1[7]//2), centroid1[6]+(centroid1[7]//2))
+                    point2 = (centroid2[5]+(centroid2[8]//2), centroid2[6]+(centroid2[8]//2))
+
+                    # Draw a black arrow (outline) on the input image
+                    cv2.arrowedLine(bgr_image_input, point1, point2, (0, 0, 0), 7, tipLength = 0.2)
+
+                    # Draw a red arrow (inner line) on top of the black arrow
+                    cv2.arrowedLine(bgr_image_input, point1, point2, (0, 0, 255), 4, tipLength=0.2)
+        vid.write(bgr_image_input)
+        cv2.imshow("Output Image", bgr_image_input)
+        key_pressed = cv2.waitKey(1) & 0xFF
+        if key_pressed == 27 or key_pressed == ord('q'):
+            break
             
 
 def down_face_counter_clock_wise(video_cap,vid,up_face,right_face,front_face,down_face,left_face,back_face):
-            
+    print("Next Move: D CounterClockwise")
+    temp = np.copy(front_face)
+    # Move the bottom row of the right face to the front face
+    front_face[0, 6] = right_face[0, 6]
+    front_face[0, 7] = right_face[0, 7]
+    front_face[0, 8] = right_face[0, 8]
+
+    # Move the bottom row of the back face to the right face
+    right_face[0, 6] = back_face[0, 6]
+    right_face[0, 7] = back_face[0, 7]
+    right_face[0, 8] = back_face[0, 8]
+
+    # Move the bottom row of the left face to the back face
+    back_face[0, 6] = left_face[0, 6]
+    back_face[0, 7] = left_face[0, 7]
+    back_face[0, 8] = left_face[0, 8]
+
+    # Move the bottom row of the temporary (original front face) to the left face
+    left_face[0, 6] = temp[0, 6]
+    left_face[0, 7] = temp[0, 7]
+    left_face[0, 8] = temp[0, 8]
+    down_face = rotate_counter_clock_wise(down_face)
+    #front_face = temp
+
+    print(front_face)
+    faces = []
+    while True:
+        is_ok, bgr_image_input = video_cap.read()
+
+        if not is_ok:
+            print("Cannot read video source")
+            sys.exit()
+
+        face, colors_array = face_detection_in_cube(bgr_image_input)
+        # print(len(face))
+        if len(face) == 9:
+            faces.append(face)
+            if len(faces) == 10:
+                face_array = np.array(faces)
+                # print('INNNNN')
+                # face_array = np.transpose(face_array)
+                detected_face = stats.mode(face_array)[0]
+                up_face = np.asarray(up_face)
+                front_face = np.asarray(front_face)
+                detected_face = np.asarray(detected_face)
+                faces = []
+                if np.array_equal(detected_face, front_face) == True:
+                    print("MOVE MADE")
+                    return up_face,right_face,front_face,down_face,left_face,back_face
+                elif np.array_equal(detected_face,temp) == True:
+                    # Calculate the center points of two specific color regions
+                    centroid1 = colors_array[8]
+                    centroid2 = colors_array[6]
+
+                    # Calculate the start and end points for the arrow
+                    point1 = (centroid1[5]+(centroid1[7]//2), centroid1[6]+(centroid1[7]//2))
+                    point2 = (centroid2[5]+(centroid2[8]//2), centroid2[6]+(centroid2[8]//2))
+
+                    # Draw a black arrow (outline) on the image
+                    cv2.arrowedLine(bgr_image_input, point1, point2, (0, 0, 0), 7, tipLength = 0.2)
+
+                    # Draw a red arrow (inner line) on top of the black arrow
+                    cv2.arrowedLine(bgr_image_input, point1, point2, (0, 0, 255), 4, tipLength=0.2)
+        vid.write(bgr_image_input)
+        cv2.imshow("Output Image", bgr_image_input)
+        key_pressed = cv2.waitKey(1) & 0xFF
+        if key_pressed == 27 or key_pressed == ord('q'):
+            break
+
 
 def turn_to_right(video_cap,vid,up_face,right_face,front_face,down_face,left_face,back_face):
             
@@ -463,7 +884,7 @@ def find_face_in_cube(video_cap, vid, uf, rf, ff, df, lf, bf, text=""):
         tr, bgr_image_input = video_cap.read()
 
         if not tr:
-            print("Cannot read video_cap source")
+            print("Cannot read video source")
             sys.exit()
         # assinging values to face and blob colors based on the face_detection_in_cube method
         face, clr_arr = face_detection_in_cube(bgr_image_input)
