@@ -904,23 +904,35 @@ def turn_to_front(video_cap,vid,up_face,right_face,front_face,down_face,left_fac
                 faces = []
                 
                 if np.array_equal(detected_face, front_face):
-                    print("Front face detected")
-                    return front_face
+                    print("Move Made")
+                    return up_face,right_face,front_face,down_face,left_face,back_face
                 else:
-                    centroid = np.mean(colors_array, axis=0)
-                    center_x = int(centroid[5] + centroid[7] // 2)
-                    center_y = int(centroid[6] + centroid[8] // 2)
-                    
-                    
-                    arrow_length = 50
-                    for angle in [0, 120, 240]:
-                        end_x = int(center_x + arrow_length * np.cos(np.radians(angle)))
-                        end_y = int(center_y + arrow_length * np.sin(np.radians(angle)))
-                            
-                        # Draw black outline arrow
-                        cv2.arrowedLine(bgr_image_input, (center_x, center_y), (end_x, end_y), (0, 0, 0), 7, tipLength=0.2)
-                        # Draw red inner arrow
-                        cv2.arrowedLine(bgr_image_input, (center_x, center_y), (end_x, end_y), (0, 0, 255), 4, tipLength=0.2)
+                    # Calculate the center points for the arrows
+                    centroid1 = colors_array[6]
+                    centroid2 = colors_array[8]
+                    centroid3 = colors_array[3]
+                    centroid4 = colors_array[5]
+                    centroid5 = colors_array[0]
+                    centroid6 = colors_array[2]
+
+                    # Calculate the start and end points for each arrow
+                    # Each point is calculated by adding half of the width/height to the x/y coordinates
+                    point1 = (centroid1[5] + (centroid1[7] // 2), centroid1[6] + (centroid1[7] // 2))
+                    point2 = (centroid2[5] + (centroid2[8] // 2), centroid2[6] + (centroid2[8] // 2))
+                    point3 = (centroid3[5] + (centroid3[7] // 2), centroid3[6] + (centroid3[7] // 2))
+                    point4 = (centroid4[5] + (centroid4[8] // 2), centroid4[6] + (centroid4[8] // 2))
+                    point5 = (centroid5[5] + (centroid5[7] // 2), centroid5[6] + (centroid5[7] // 2))
+                    point6 = (centroid6[5] + (centroid6[8] // 2), centroid6[6] + (centroid6[8] // 2))
+
+                    # Draw black arrows (outer lines) on the image
+                    cv2.arrowedLine(bgr_image_input, point1, point2, (0, 0, 0), 7, tipLength = 0.2)
+                    cv2.arrowedLine(bgr_image_input, point3, point4, (0, 0, 0), 7, tipLength = 0.2)
+                    cv2.arrowedLine(bgr_image_input, point5, point6, (0, 0, 0), 7, tipLength = 0.2)
+
+                    # Draw red arrows (inner lines) on top of the black arrows
+                    cv2.arrowedLine(bgr_image_input, point1, point2, (0, 0, 255), 4, tipLength=0.2)
+                    cv2.arrowedLine(bgr_image_input, point3, point4, (0, 0, 255), 4, tipLength=0.2)
+                    cv2.arrowedLine(bgr_image_input, point5, point6, (0, 0, 255), 4, tipLength=0.2)
 
         vid.write(bgr_image_input)
         cv2.imshow("Output Image", bgr_image_input)
