@@ -519,7 +519,7 @@ def left_face_counter_clock_wise(video_cap, vid, up_face, right_face,
 
 
 def front_face_clock_wise(video_cap, vid, up_face, right_face, front_face,
-                         down_face, left_face, back_face):
+                          down_face, left_face, back_face):
     print(front_face)
     print("Next Move: F Clockwise")
     temp1 = np.copy(front_face)
@@ -593,7 +593,8 @@ def front_face_clock_wise(video_cap, vid, up_face, right_face, front_face,
                 detected_face = np.asarray(detected_face)
                 faces = []
 
-                # check for current face and actual face that has to be there after the move is made
+                # check for current face and actual 
+                # face that has to be there after the move is made
                 if np.array_equal(detected_face, front_face) == True:
                     print("MOVE MADE")
                     return (
@@ -605,7 +606,8 @@ def front_face_clock_wise(video_cap, vid, up_face, right_face, front_face,
                         back_face
                     )
 
-                # else display the arrow by calculation the centroid using the coordinates
+                # else display the arrow by calculation 
+                # the centroid using the coordinates
                 # that are available in color_array
                 elif np.array_equal(detected_face, temp1) == True:
                     # Calculate centroid points for each corner of the face
@@ -615,7 +617,8 @@ def front_face_clock_wise(video_cap, vid, up_face, right_face, front_face,
                     centroid4 = colors_array[2]
 
                     # Calculate arrow points based on centroid coordinates
-                    # Each point is adjusted to create arrows that form a clockwise rotation
+                    # Each point is adjusted to create 
+                    # arrows that form a clockwise rotation
                     point1 = (
                         centroid1[5] + (centroid1[7] // 4),
                         centroid1[6] + (centroid1[7] // 2)
@@ -651,30 +654,38 @@ def front_face_clock_wise(video_cap, vid, up_face, right_face, front_face,
 
                     # Draw black arrows (outline) for better visibility
                     cv2.arrowedLine(
-                        bgr_image_input, point1, point2, (0, 0, 0), 7, tipLength=0.2
+                        bgr_image_input, point1, point2,
+                        (0, 0, 0), 7, tipLength=0.2
                     )
                     cv2.arrowedLine(
-                        bgr_image_input, point3, point4, (0, 0, 0), 7, tipLength=0.2
+                        bgr_image_input, point3, point4,
+                        (0, 0, 0), 7, tipLength=0.2
                     )
                     cv2.arrowedLine(
-                        bgr_image_input, point5, point6, (0, 0, 0), 7, tipLength=0.2
+                        bgr_image_input, point5, point6,
+                        (0, 0, 0), 7, tipLength=0.2
                     )
                     cv2.arrowedLine(
-                        bgr_image_input, point7, point8, (0, 0, 0), 7, tipLength=0.2
+                        bgr_image_input, point7, point8,
+                        (0, 0, 0), 7, tipLength=0.2
                     )
 
                     # Draw red arrows on top of the black arrows
                     cv2.arrowedLine(
-                        bgr_image_input, point1, point2, (0, 0, 255), 4, tipLength=0.2
+                        bgr_image_input, point1, point2,
+                        (0, 0, 255), 4, tipLength=0.2
                     )
                     cv2.arrowedLine(
-                        bgr_image_input, point3, point4, (0, 0, 255), 4, tipLength=0.2
+                        bgr_image_input, point3, point4,
+                        (0, 0, 255), 4, tipLength=0.2
                     )
                     cv2.arrowedLine(
-                        bgr_image_input, point5, point6, (0, 0, 255), 4, tipLength=0.2
+                        bgr_image_input, point5, point6,
+                        (0, 0, 255), 4, tipLength=0.2
                     )
                     cv2.arrowedLine(
-                        bgr_image_input, point7, point8, (0, 0, 255), 4, tipLength=0.2
+                        bgr_image_input, point7, point8,
+                        (0, 0, 255), 4, tipLength=0.2
                     )
         vid.write(bgr_image_input)
         cv2.imshow("Output Image", bgr_image_input)
