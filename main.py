@@ -458,10 +458,47 @@ def left_face_counter_clock_wise(video_cap,vid,up_face,right_face,front_face,dow
 
 
 def front_face_clock_wise(video_cap,vid,up_face,right_face,front_face,down_face,left_face,back_face):
-            
+    print("Next Move: F Clockwise")
+    temp = np.copy(up_face)
+    # Move the up column of the up face to the left face
+    up_face[0, 8] = left_face[0, 2]
+    up_face[0, 7] = left_face[0, 5]
+    up_face[0, 6] = left_face[0, 8]
+    # Move the middle column of the left face to the down face
+    left_face[0, 2] = down_face[0, 0]
+    left_face[0, 5] = down_face[0, 1]
+    left_face[0, 8] = down_face[0, 2]
+    # Move the bottom row
+    down_face[0, 2] = right_face[0, 6]
+    down_face[0, 1] = right_face[0, 3]
+    down_face[0, 0] = right_face[0, 0]
+    # Move the middle column of the right face to the up face
+    right_face[0, 0] = temp[0, 0]
+    right_face[0, 3] = temp[0, 1]
+    right_face[0, 6] = temp[0, 2]
+    front_face = rotate_clock_wise(front_face)
+    print(front_face)
 
 def front_face_counter_clock_wise(video_cap,vid,up_face,right_face,front_face,down_face,left_face,back_face):
-            
+    print("Next Move: F CounterClockwise")
+    temp = np.copy(up_face)
+        # Move the up column of the up face to the right face
+    up_face[0, 0] = right_face[0, 2]
+    up_face[0, 1] = right_face[0, 5]
+    up_face[0, 2] = right_face[0, 8]
+        # Move the middle column of the right face to the down face
+    right_face[0, 8] = down_face[0, 6]
+    right_face[0, 5] = down_face[0, 7]
+    right_face[0, 2] = down_face[0, 8]
+        # move the bottom row of the down face to the left face
+    down_face[0, 6] = left_face[0, 0]
+    down_face[0, 7] = left_face[0, 3]
+    down_face[0, 8] = left_face[0, 6]
+        # Move the middle column of the left face to the up face
+        left_face[0, 0] = temp[0, 0]
+        left_face[0, 3] = temp[0, 1]
+        left_face[0, 6] = temp[0, 2]
+        front_face = rotate_counter_clock_wise(front_face)
 
 def back_face_clock_wise(video_cap,vid,up_face,right_face,front_face,down_face,left_face,back_face):
     print("Next Move: B Clockwise")
@@ -869,7 +906,74 @@ def down_face_counter_clock_wise(video_cap,vid,up_face,right_face,front_face,dow
 
 
 def turn_to_right(video_cap,vid,up_face,right_face,front_face,down_face,left_face,back_face):
-    
+    print("Next Move: Show Right Face")
+    temp = np.copy(front_face)
+    front_face = np.copy(right_face)
+    right_face = np.copy(back_face)
+    back_face = np.copy(left_face)
+    left_face = np.copy(temp)
+    up_face = rotate_clock_wise(up_face)
+    down_face = rotate_counter_clock_wise(down_face)
+    #front_face = temp
+
+    print(front_face)
+    faces = []
+    while True:
+        is_ok, bgr_image_input = video_cap.read()
+
+        if not is_ok:
+            print("Cannot read video source")
+            sys.exit()
+
+        face, colors_array = face_detection_in_cube(bgr_image_input)
+        # print(len(face))
+        if len(face) == 9:
+            faces.append(face)
+            if len(faces) == 10:
+                face_array = np.array(faces)
+                # print('INNNNN')
+                # face_array = np.transpose(face_array)
+                detected_face = stats.mode(face_array)[0]
+                up_face = np.asarray(up_face)
+                front_face = np.asarray(front_face)
+                detected_face = np.asarray(detected_face)
+                faces = []
+                if np.array_equal(detected_face, front_face) == True:
+                    print("MOVE MADE")
+                    return up_face,right_face,front_face,down_face,left_face,back_face
+                elif np.array_equal(detected_face,temp) == True:
+                    # Extract centroids from colors_array
+                    centroid1 = colors_array[8]
+                    centroid2 = colors_array[6]
+                    centroid3 = colors_array[5]
+                    centroid4 = colors_array[3]
+                    centroid5 = colors_array[2]
+                    centroid6 = colors_array[0]
+
+                    # Calculate midpoints for each centroid
+                    point1 = (centroid1[5] + (centroid1[7] // 2), centroid1[6] + (centroid1[7] // 2))
+                    point2 = (centroid2[5] + (centroid2[8] // 2), centroid2[6] + (centroid2[8] // 2))
+                    point3 = (centroid3[5] + (centroid3[7] // 2), centroid3[6] + (centroid3[7] // 2))
+                    point4 = (centroid4[5] + (centroid4[8] // 2), centroid4[6] + (centroid4[8] // 2))
+                    point5 = (centroid5[5] + (centroid5[7] // 2), centroid5[6] + (centroid5[7] // 2))
+                    point6 = (centroid6[5] + (centroid6[8] // 2), centroid6[6] + (centroid6[8] // 2))
+
+                    # Draw black arrows (thicker lines)
+                    cv2.arrowedLine(bgr_image_input, point1, point2, (0, 0, 0), 7, tipLength = 0.2)
+                    cv2.arrowedLine(bgr_image_input, point3, point4, (0, 0, 0), 7, tipLength = 0.2)
+                    cv2.arrowedLine(bgr_image_input, point5, point6, (0, 0, 0), 7, tipLength = 0.2)
+
+                    # Draw red arrows (thinner lines) on top of black arrows
+                    cv2.arrowedLine(bgr_image_input, point1, point2, (0, 0, 255), 4, tipLength=0.2)
+                    cv2.arrowedLine(bgr_image_input, point3, point4, (0, 0, 255), 4, tipLength=0.2)
+                    cv2.arrowedLine(bgr_image_input, point5, point6, (0, 0, 255), 4, tipLength=0.2)
+
+        vid.write(bgr_image_input)
+        cv2.imshow("Output Image", bgr_image_input)
+        key_pressed = cv2.waitKey(1) & 0xFF
+        if key_pressed == 27 or key_pressed == ord('q'):
+            break
+
             
 
 def turn_to_front(video_cap,vid,up_face,right_face,front_face,down_face,left_face,back_face):
