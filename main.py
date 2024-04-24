@@ -1696,10 +1696,13 @@ def main():
 
         if broke == 1:
             break
-        # spliting the steps and calling respective functions so that arrows can be displayed accordingly
+        # spliting the steps and calling respective functions 
+        # so that arrows can be displayed accordingly
         # below methods are available in the rotate.py file
-        # in steps letter like R F B D L U indicate right, front, back , down faces to be rotated clockwise
-        # if there is 2 after the letter they should be rotate twice and if there is " ' " like R' then the respective
+        # in steps letter like R F B D L U indicate right, front,
+        # back , down faces to be rotated clockwise
+        # if there is 2 after the letter they should be rotate
+        # twice and if there is " ' " like R' then the respective
         # face should be rotated anti clock wise
         steps = solved.split()
         for step in steps:
@@ -1811,14 +1814,54 @@ def main():
                 [upfce, rightfce, frtfce, downfce, leftfce, backfce] = down_face_clock_wise(
                     video_cap, vid, upfce, rightfce, frtfce, downfce, leftfce, backfce
                 )
-        while True:
-            # Capture frame-by-frame
-            ret, frame = video_cap.read()
-            # Display the resulting frame
-            cv2.imshow('Video', frame)
-            # Press 'q' to quit
-    
-    # When everything is done, release the capture
-    
-    
-    
+                
+        # after solving all we just need to check the strings and display message accordingly
+        cube_solved = [mu, mu, mu, mu, mu, mu, mu, mu, mu, mr, mr, mr, mr, mr, mr, mr, mr, mr, mf, mf, mf, mf, mf, mf,
+                       mf, mf, mf, md, md, md, md, md, md, md, md, md, ml, ml, ml, ml, ml, ml, ml, ml, ml, mb, mb, mb,
+                       mb, mb, mb, mb, mb, mb]
+        if (face_concatenation(up_face, right_face, front_face, down_face, left_face, back_face) == cube_solved).all():
+            # print("CUBE IS SOLVED")
+            is_ok, bgr_image_input = video_cap.read()
+            bgr_image_input = cv2.putText(bgr_image_input, "CUBE SOLVED", (100, 50), cv2.FONT_HERSHEY_SIMPLEX, 2,
+                                          (0, 0, 255), 3)
+
+            vid.write(bgr_image_input)
+            cv2.imshow("Output Image", bgr_image_input)
+            key_pressed = cv2.waitKey(1) & 0xFF
+            if key_pressed == 27 or key_pressed == ord('q'):
+                break
+            start_time = datetime.now()
+            while True:
+                if (datetime.now() - start_time).total_seconds() > 5:
+                    break
+                else:
+                    is_ok, bgr_image_input = video_cap.read()
+                    if not is_ok:
+                        broke = 1
+                        break
+                    bgr_image_input = cv2.putText(bgr_image_input,"CUBE SOLVED", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 2,
+                                                  (0, 0, 255), 3)
+                    vid.write(bgr_image_input)
+                    cv2.imshow("Output Image", bgr_image_input)
+                    key_pressed = cv2.waitKey(1) & 0xFF
+                    if key_pressed == 27 or key_pressed == ord('q'):
+                        broke = 1
+                        break
+            if broke == 1:
+                break
+            break
+        # print(front_face)
+        # print(up_face)
+
+        vid.write(bgr_image_input)
+        cv2.imshow("Output Image", bgr_image_input)
+        # print(count)
+        # print(color_array)
+        # print(face)
+        key_pressed = cv2.waitKey(1) & 0xFF
+        if key_pressed == 27 or key_pressed == ord('q'):
+            break
+
+
+if __name__ == "__main__":
+    main()
